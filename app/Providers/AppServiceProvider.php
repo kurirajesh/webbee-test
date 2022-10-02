@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +27,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        /*DB::listen(function ($query) {
+            Log::error($query);
+        });*/
+        if (App::environment('local')) {
+            DB::listen(function ($query) {
+                Log::error(
+                    $query->sql,
+                    $query->bindings,
+                    $query->time
+                );
+            });
+        }
     }
 }
