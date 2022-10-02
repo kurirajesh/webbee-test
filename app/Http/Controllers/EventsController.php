@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -183,7 +184,18 @@ class EventsController extends BaseController
     ```
      */
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getFutureEventsWithWorkshops() {
-        throw new \Exception('implement in coding task 2');
+        $condition = [['start', '>', date('Y-m-d H:i:s')]];
+        $futureEvents = Event::with(['workshops' => function ($query) use ($condition) {
+            $query->where($condition);
+            $query->orderBy('start');
+        }])->whereHas('workshops', function ($query) use ($condition) {
+            $query->where($condition);
+        })->get();
+
+        return response()->json($futureEvents);
     }
 }
